@@ -1,0 +1,209 @@
+<template>
+   <div class="itemMusicList">
+    <div class="itemListTop">
+      <div class="listLeft">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-bofang"></use>
+        </svg>
+        <span
+          >播放全部<span>(共{{ itemList.length }}首)</span></span
+        >
+      </div>
+      <div class="listRight1" @click="subscribe" v-if="this.isSubscribe===false">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-jiahao"></use>
+        </svg>
+        <span>收藏({{ subscribedCount }})</span>
+      </div>
+      <div class="listRight2" @click="Cancelsubscribe" v-if="this.isSubscribe===true">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-jianhao"></use>
+        </svg>
+        <span>取消收藏({{ subscribedCount }})</span>
+      </div>
+    </div>
+    <div class="itemList">
+      <div class="item" v-for="(item, i) in itemList" :key="i">
+        <div class="itemLeft" @click="playMusic(i)">
+          <span class="leftSpan">{{ i + 1 }}</span>
+          <div>
+            <p>{{ item.name }}</p>
+            <span v-for="(item1, index) in item.ar" :key="index">{{
+              item1.name+ '\t'
+            }}</span>
+          </div>
+        </div>
+        <div class="itemRight">
+          <svg class="icon bofang" aria-hidden="true" v-if='item.mv !=0'>
+            <use xlink:href="#icon-shipin"></use>
+          </svg>
+          <svg class="icon liebiao" aria-hidden="true">
+            <use xlink:href="#icon-liebiao"></use>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import {getSubscribe} from '@/api/home'
+import { mapMutations } from 'vuex'
+export default {
+    props:['itemList','subscribedCount'],
+    setup(props) {
+        console.log(props)
+        
+    },
+    data() {
+      return {
+        Id:this.$route.query.id,
+        cookie:JSON.parse(localStorage.getItem('cookies')),
+        isSubscribe:false
+      }
+    },
+    methods: {
+      playMusic(i){
+        this.updatePlayList(this.itemList)
+        this.updatePlayListIndex(i)
+      },
+      async subscribe(){
+        let result = await getSubscribe({t:1,id:this.Id,cookie:this.cookie})
+        this.isSubscribe = true
+        console.log(result)
+      },
+      async Cancelsubscribe(){
+        let result = await getSubscribe({t:2,id:this.Id,cookie:this.cookie})
+        this.isSubscribe = false
+        console.log(result)
+      },
+      ...mapMutations(['updatePlayList','updatePlayListIndex'])
+    },
+}
+</script>
+
+<style lang="less" scoped>
+.itemMusicList {
+  width: 100%;
+  height: 10rem;
+  background-color: #fff;
+  padding: 0 0.2rem;
+  margin-top: 0.2rem;
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+  .itemListTop {
+    width: 100%;
+    height: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .listLeft {
+      width: 3rem;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .icon {
+        stroke: #333333;
+        stroke-width: 20;
+      }
+      span {
+        font-weight: 700;
+        span {
+          font-weight: 400;
+          font-size: 0.24rem;
+          color: #999;
+        }
+      }
+    }
+    .listRight1 {
+      display: flex;
+      align-items: center;
+      background-color: red;
+      padding: 0.2rem;
+      border-radius: 0.4rem;
+      color: #fff;
+      .icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        fill: #fff;
+        margin-right: 0.1rem;
+        stroke: #fff;
+        stroke-width: 50;
+      }
+    }
+    .listRight2 {
+      display: flex;
+      align-items: center;
+      background-color: grey;
+      padding: 0.2rem;
+      border-radius: 0.4rem;
+      color: #fff;
+      .icon {
+        width: 0.3rem;
+        height: 0.3rem;
+        fill: #fff;
+        margin-right: 0.1rem;
+        stroke: #fff;
+        stroke-width: 50;
+      }
+    }
+  }
+  .itemList {
+    width: 100%;
+    .item {
+      width: 100%;
+      height: 1.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .itemLeft {
+        width: 85%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        .leftSpan {
+          display: inline-block;
+          width: 0.2rem;
+          text-align: center;
+        }
+        div {
+          p {
+            width: 4.54rem;
+            height: .4rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 700;
+          }
+          span{
+            font-weight: 400;
+            font-size: .24rem;
+            color: #999;
+          }
+          margin-left: 0.3rem;
+        }
+      }
+      .itemRight{
+        width: 20%;
+        height: 100%;
+        display: flex;
+        // justify-content: space-between;
+        align-items: center;
+        position: relative;
+        .icon{
+          fill: #999;
+        }
+         .bofang{
+            position: absolute;
+            left: 0;
+          }
+         .liebiao{
+            position: absolute;
+            right: 0;
+          }
+      }
+    }
+  }
+}
+</style>
